@@ -12,6 +12,6 @@ public class Provider {
         LocalRegister.register(UserService.class.getName(), UserServiceImpl.class);
 
         HttpServer httpServer=new VertxHttpServer();
-        httpServer.start(8080);
+        httpServer.start(RpcApplication.getRpcConfig().getServerPort());
     }
 }
