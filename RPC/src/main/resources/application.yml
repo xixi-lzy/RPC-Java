@@ -1,0 +1,6 @@
+rpc:
+  name: xixi-rpc
+  version: 2.0
+  serverHost: localhost
+  serverPort: 8080
+  #mock: true

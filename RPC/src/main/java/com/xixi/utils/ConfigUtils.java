@@ -1,7 +1,10 @@
 package com.xixi.utils;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.setting.dialect.Props;
+import cn.hutool.setting.yaml.YamlUtil;
 
 /**
  * 配置工具类
@@ -34,8 +37,10 @@ public class ConfigUtils {
         if (StrUtil.isNotBlank(environment)) {
             configFileBuilder.append("-").append(environment);
         }
-        configFileBuilder.append(".properties");
-        Props props = new Props(configFileBuilder.toString());
-        return props.toBean(tClass, prefix);
+        configFileBuilder.append(".yml");
+        Dict dict = YamlUtil.loadByPath(configFileBuilder.toString());
+        return BeanUtil.copyProperties(dict.getBean(prefix), tClass);
+//        Props props = new Props(configFileBuilder.toString());
+//        return props.toBean(tClass, prefix);
     }
 }

@@ -3,13 +3,11 @@ package com.xixi;
 import com.xixi.config.RpcConfig;
 import com.xixi.constant.RpcConstant;
 import com.xixi.utils.ConfigUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * RPC 框架应用
  * 相当于 holder，存放了项目全局用到的变量。双检锁单例模式实现
  */
-//@Slf4j
 public class RpcApplication {
 
     private static volatile RpcConfig rpcConfig;
