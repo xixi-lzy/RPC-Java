@@ -16,9 +16,13 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class EtcdRegister implements Register {
+
+    //本地注册的节点信息（用于维护心跳）
+    private static final Set<String> LocalRegisterNodeKeySet = new HashSet<>();
 
     private Client client;
 
@@ -38,6 +42,8 @@ public class EtcdRegister implements Register {
                 .connectTimeout(Duration.ofMillis(registryConfig.getTimeout()))
                 .build();
         kvClient = client.getKVClient();
+        //开启心跳检测
+        heartbeat();
     }
 
     @Override
@@ -56,11 +62,16 @@ public class EtcdRegister implements Register {
         // 将键值对与租约关联起来，并设置过期时间
         PutOption putOption = PutOption.builder().withLeaseId(leaseId).build();
         kvClient.put(key, value, putOption).get();
+
+        //本地存储
+        LocalRegisterNodeKeySet.add(registerKey);
     }
 
     @Override
     public void unRegister(ServiceMetaInfo serviceMetaInfo) {
         kvClient.delete(ByteSequence.from(ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey(), StandardCharsets.UTF_8));
+        //本地删除
+        LocalRegisterNodeKeySet.remove(ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey());
     }
 
     @Override
@@ -98,6 +109,34 @@ public class EtcdRegister implements Register {
         if (client != null) {
             client.close();
         }
+    }
+
+    @Override
+    public void heartbeat() {
+        CronUtil.schedule("*/10 * * * * ?", new Task() {
+            @Override
+            public void execute() {
+                for(String key : LocalRegisterNodeKeySet) {
+                    try {
+                        List<KeyValue> keyValues = kvClient.get(
+                                        ByteSequence.from(key, StandardCharsets.UTF_8))
+                                .get()
+                                .getKvs();
+                        if(CollUtil.isEmpty(keyValues)) {
+                            continue;
+                        }
+                        KeyValue keyValue = keyValues.get(0);
+                        String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
+                        ServiceMetaInfo serviceMetaInfo = JSONUtil.toBean(value, ServiceMetaInfo.class);
+                        register(serviceMetaInfo);
+                    } catch (Exception e) {
+                        throw new RuntimeException(key+"续签失败",e);
+                    }
+                }
+            }
+        });
+        CronUtil.setMatchSecond(true);
+        CronUtil.start();
     }
 }
 
