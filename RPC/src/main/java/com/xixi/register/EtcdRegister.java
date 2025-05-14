@@ -1,6 +1,7 @@
 package com.xixi.register;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
@@ -10,19 +11,32 @@ import com.xixi.model.ServiceMetaInfo;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.watch.WatchEvent;
 
+import javax.imageio.spi.ServiceRegistry;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class EtcdRegister implements Register {
 
-    //本地注册的节点信息（用于维护心跳）
+    /**
+     * 本地注册的节点信息
+     */
     private static final Set<String> LocalRegisterNodeKeySet = new HashSet<>();
+
+    /**
+     * 本地服务缓存
+     */
+    private final ServiceRegisterCache serviceRegisterCache = new ServiceRegisterCache();
+
+    /**
+     * 正在监听的 key 集合
+     */
+    private final Set<String> watchingKeySet = new ConcurrentHashSet<>();
 
     private static boolean schedulerStarted = false;
 
@@ -78,6 +92,12 @@ public class EtcdRegister implements Register {
 
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
+        // 从缓存中获取服务列表
+        List<ServiceMetaInfo> serviceMetaInfos = serviceRegisterCache.readCache();
+        if (CollUtil.isNotEmpty(serviceMetaInfos)) {
+            return serviceMetaInfos;
+        }
+
         // 前缀搜索，结尾一定要加 '/'
         String searchPrefix = ETCD_ROOT_PATH + serviceKey + "/";
 
@@ -90,12 +110,18 @@ public class EtcdRegister implements Register {
                     .get()
                     .getKvs();
             // 解析服务信息
-            return keyValues.stream()
+            List<ServiceMetaInfo> serviceMetaInfoList=keyValues.stream()
                     .map(keyValue -> {
+                        String key = keyValue.getKey().toString(StandardCharsets.UTF_8);
+                        //监听key
+                        watch(key);
                         String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
                         return JSONUtil.toBean(value, ServiceMetaInfo.class);
                     })
                     .collect(Collectors.toList());
+            //服务缓存写入
+            serviceRegisterCache.writeCache(serviceMetaInfoList);
+            return serviceMetaInfoList;
         } catch (Exception e) {
             throw new RuntimeException("获取服务列表失败", e);
         }
@@ -154,5 +180,34 @@ public class EtcdRegister implements Register {
         CronUtil.start();
         schedulerStarted = true;
     }
+
+    /**
+     * 监听（消费端）
+     *
+     * @param serviceNodeKey
+     */
+    @Override
+    public void watch(String serviceNodeKey) {
+        Watch watchClient = client.getWatchClient();
+        // 之前未被监听，开启监听
+        boolean newWatch = watchingKeySet.add(serviceNodeKey);
+        if (newWatch) {
+            watchClient.watch(ByteSequence.from(serviceNodeKey, StandardCharsets.UTF_8), response -> {
+                for (WatchEvent event : response.getEvents()) {
+                    switch (event.getEventType()) {
+                        // key 删除时触发
+                        case DELETE:
+                            // 清理注册服务缓存
+                            serviceRegisterCache.clearCache();
+                            break;
+                        case PUT:
+                        default:
+                            break;
+                    }
+                }
+            });
+        }
+    }
+
 }
 

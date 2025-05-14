@@ -48,4 +48,9 @@ public interface Register {
      * 心跳检测
      */
     void heartbeat();
+
+    /**
+     * 服务监测（消费端）
+     */
+    void watch(String serviceNodeKey);
 }
