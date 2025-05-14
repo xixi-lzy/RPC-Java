@@ -6,11 +6,13 @@ import com.xixi.constant.RpcConstant;
 import com.xixi.register.Register;
 import com.xixi.register.RegisterFactory;
 import com.xixi.utils.ConfigUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * RPC 框架应用
  * 相当于 holder，存放了项目全局用到的变量。双检锁单例模式实现
  */
+@Slf4j
 public class RpcApplication {
 
     private static volatile RpcConfig rpcConfig;
@@ -22,11 +24,14 @@ public class RpcApplication {
      */
     private static void init(RpcConfig newRpcConfig) {
         rpcConfig = newRpcConfig;
-        //log.info("rpc init, config = {}", newRpcConfig.toString());
+        log.info("rpc init, config = {}", newRpcConfig.toString());
         //初始化注册中心
         RegisterConfig registerConfig = rpcConfig.getRegisterConfig();
         Register register = RegisterFactory.getInstance(registerConfig.getRegistry());
         register.init(registerConfig);
+
+        //JVM结束时自动注销服务
+        Runtime.getRuntime().addShutdownHook(new Thread(register::destroy));
     }
 
     /**

@@ -12,7 +12,6 @@ import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 
 import java.nio.charset.StandardCharsets;
-import java.rmi.registry.Registry;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
@@ -105,6 +104,14 @@ public class EtcdRegister implements Register {
     @Override
     public void destroy() {
         System.out.println("当前节点下线");
+        //下线节点
+        for(String nodeKey : LocalRegisterNodeKeySet) {
+            try {
+                kvClient.delete(ByteSequence.from(nodeKey, StandardCharsets.UTF_8)).get();
+            } catch (Exception e) {
+                throw new RuntimeException(nodeKey+"下线节点失败");
+            }
+        }
         // 释放资源
         if (kvClient != null) {
             kvClient.close();

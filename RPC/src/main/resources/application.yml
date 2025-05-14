@@ -5,5 +5,7 @@ rpc:
   serverPort: 8080
   serializer: json
   register:
-    timeout: 20
+    registry: etcd
+    address: http://localhost:2379
+    timeout: 30
   #mock: true
