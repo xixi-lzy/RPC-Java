@@ -18,6 +18,8 @@ public class RpcConfig {
 
     private String serializer= SerializerKeys.JDK;
 
+    private RegisterConfig registerConfig=new RegisterConfig();
+
     public boolean isMock() {
         return mock==true;
     }

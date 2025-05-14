@@ -1,7 +1,10 @@
 package com.xixi;
 
+import com.xixi.config.RegisterConfig;
 import com.xixi.config.RpcConfig;
 import com.xixi.constant.RpcConstant;
+import com.xixi.register.Register;
+import com.xixi.register.RegisterFactory;
 import com.xixi.utils.ConfigUtils;
 
 /**
@@ -20,6 +23,10 @@ public class RpcApplication {
     private static void init(RpcConfig newRpcConfig) {
         rpcConfig = newRpcConfig;
         //log.info("rpc init, config = {}", newRpcConfig.toString());
+        //初始化注册中心
+        RegisterConfig registerConfig = rpcConfig.getRegisterConfig();
+        Register register = RegisterFactory.getInstance(registerConfig.getRegistry());
+        register.init(registerConfig);
     }
 
     /**
