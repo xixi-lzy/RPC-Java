@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
+import com.xixi.RpcApplication;
 import com.xixi.config.RegisterConfig;
 import com.xixi.model.ServiceMetaInfo;
 import io.etcd.jetcd.*;
@@ -23,6 +24,8 @@ public class EtcdRegister implements Register {
 
     //本地注册的节点信息（用于维护心跳）
     private static final Set<String> LocalRegisterNodeKeySet = new HashSet<>();
+
+    private static boolean schedulerStarted = false;
 
     private Client client;
 
@@ -51,8 +54,8 @@ public class EtcdRegister implements Register {
         // 创建 Lease 和 KV 客户端
         Lease leaseClient = client.getLeaseClient();
 
-        // 创建一个 30 秒的租约
-        long leaseId = leaseClient.grant(600).get().getID();
+        // 创建一个 默认30 秒的租约
+        long leaseId = leaseClient.grant(RpcApplication.getRpcConfig().getRegisterConfig().getTimeout()).get().getID();
 
         // 设置要存储的键值对
         String registerKey = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
@@ -113,6 +116,11 @@ public class EtcdRegister implements Register {
 
     @Override
     public void heartbeat() {
+        if (schedulerStarted) {
+            CronUtil.stop();
+            schedulerStarted = false;
+        }
+        //10s执行一次
         CronUtil.schedule("*/10 * * * * ?", new Task() {
             @Override
             public void execute() {
@@ -137,6 +145,7 @@ public class EtcdRegister implements Register {
         });
         CronUtil.setMatchSecond(true);
         CronUtil.start();
+        schedulerStarted = true;
     }
 }
 

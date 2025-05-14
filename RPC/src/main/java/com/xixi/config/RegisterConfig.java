@@ -29,8 +29,8 @@ public class RegisterConfig {
     private String password;
 
     /**
-     * 超时时间（单位毫秒）
+     * 超时时间（单位秒）
      */
-    private Long timeout = 10000L;
+    private Long timeout = 30L;
 }
 
