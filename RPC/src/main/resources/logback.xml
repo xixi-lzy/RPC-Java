@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <logger name="io.grpc.netty" level="INFO"/>
+
+    <!-- 保留其他现有配置 -->
+    <root level="info">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
