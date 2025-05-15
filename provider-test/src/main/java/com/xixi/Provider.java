@@ -8,6 +8,7 @@ import com.xixi.register.Register;
 import com.xixi.register.RegisterFactory;
 import com.xixi.server.HttpServer;
 import com.xixi.server.VertxHttpServer;
+import com.xixi.server.tcp.VertxTcpServer;
 import com.xixi.service.UserService;
 
 import java.rmi.registry.Registry;
@@ -44,7 +45,11 @@ public class Provider {
         }
 
         // 启动 web 服务
-        HttpServer httpServer = new VertxHttpServer();
-        httpServer.start(RpcApplication.getRpcConfig().getServerPort());
+//        HttpServer httpServer = new VertxHttpServer();
+//        httpServer.start(RpcApplication.getRpcConfig().getServerPort());
+
+        // 启动 TCP 服务
+        VertxTcpServer vertxTcpServer= new VertxTcpServer();
+        vertxTcpServer.start(RpcApplication.getRpcConfig().getServerPort());
     }
 }
