@@ -13,16 +13,16 @@ public class Consumer {
         user.setName("xixi");
         // 调用
         User newUser = userService.getUser(user);
-        newUser=userService.getUser(user);
-        newUser=userService.getUser(user);
+//        newUser=userService.getUser(user);
+//        newUser=userService.getUser(user);
         if (newUser != null) {
             System.out.println(newUser.getName());
         } else {
             System.out.println("user == null");
         }
-//        long number = userService.getNumber();
-//        System.out.println(number);
-//        RpcConfig rpcConfig=RpcApplication.getRpcConfig();
-//        System.out.println(rpcConfig);
+        long number = userService.getNumber();
+        System.out.println(number);
+        RpcConfig rpcConfig=RpcApplication.getRpcConfig();
+        System.out.println(rpcConfig);
     }
 }

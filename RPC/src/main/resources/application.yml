@@ -4,6 +4,8 @@ rpc:
   serverHost: localhost
   serverPort: 8080
   serializer: json
+  #大写开头
+  loadBalancer: ConsistentHash
   register:
     registry: etcd
     address: http://localhost:2379

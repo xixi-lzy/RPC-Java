@@ -6,6 +6,8 @@ import cn.hutool.http.HttpResponse;
 import com.xixi.RpcApplication;
 import com.xixi.config.RpcConfig;
 import com.xixi.constant.RpcConstant;
+import com.xixi.loadBalancer.LoadBalancer;
+import com.xixi.loadBalancer.LoadBalancerFactory;
 import com.xixi.model.RpcRequest;
 import com.xixi.model.RpcResponse;
 import com.xixi.model.ServiceMetaInfo;
@@ -63,7 +65,9 @@ public class ServiceProxy implements InvocationHandler {
             if (CollUtil.isEmpty(serviceMetaInfoList)) {
                 throw new RuntimeException("暂无服务地址");
             }
-            ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
+            //负载均衡
+            LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
+            ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(serviceMetaInfoList);
 
             // 发送请求
             try (HttpResponse httpResponse = HttpRequest.post(selectedServiceMetaInfo.getServiceAddress())
