@@ -4,6 +4,8 @@ rpc:
   serverHost: localhost
   serverPort: 8081
   serializer: json
+  retryStrategy: fixedInterval
+  tolerantStrategy: failSafe
   #大写开头
   loadBalancer: ConsistentHash
   register:

@@ -7,6 +7,10 @@ import cn.hutool.http.HttpResponse;
 import com.xixi.RpcApplication;
 import com.xixi.config.RpcConfig;
 import com.xixi.constant.RpcConstant;
+import com.xixi.fault.retry.RetryStrategy;
+import com.xixi.fault.retry.RetryStrategyFactory;
+import com.xixi.fault.tolerant.TolerantStrategy;
+import com.xixi.fault.tolerant.TolerantStrategyFactory;
 import com.xixi.loadBalancer.LoadBalancer;
 import com.xixi.loadBalancer.LoadBalancerFactory;
 import com.xixi.model.RpcRequest;
@@ -76,8 +80,19 @@ public class ServiceProxy implements InvocationHandler {
             LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
             ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(serviceMetaInfoList);
 
-            // 发送TCP请求
-            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest,selectedServiceMetaInfo);
+            // rpc 请求
+            // 使用重试机制
+            RpcResponse rpcResponse;
+            try {
+                RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+                rpcResponse = retryStrategy.doRetry(() ->
+                        VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo)
+                );
+            } catch (Exception e) {
+                // 容错机制
+                TolerantStrategy tolerantStrategy = TolerantStrategyFactory.getInstance(rpcConfig.getTolerantStrategy());
+                rpcResponse = tolerantStrategy.doTolerant(null, e);
+            }
             return rpcResponse.getData();
         } catch (IOException e) {
             e.printStackTrace();
