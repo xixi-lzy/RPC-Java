@@ -5,9 +5,8 @@ rpc:
   serverPort: 8081
   serializer: json
   retryStrategy: fixedInterval
-  tolerantStrategy: failSafe
-  #大写开头
-  loadBalancer: ConsistentHash
+  tolerantStrategy: failOver
+  loadBalancer: consistentHash
   register:
     registry: etcd
     address: http://localhost:2379

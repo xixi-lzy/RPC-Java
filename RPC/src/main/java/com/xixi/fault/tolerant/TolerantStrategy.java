@@ -12,5 +12,5 @@ public interface TolerantStrategy {
      * @param context 上下文，用于传递数据
      * @return
      */
-    RpcResponse doTolerant(Map<String,Object> context,Exception e);
+    RpcResponse doTolerant(Map<String,Object> context,Exception e) throws Exception;
 }

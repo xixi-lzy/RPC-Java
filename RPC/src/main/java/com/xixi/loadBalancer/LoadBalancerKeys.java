@@ -5,9 +5,9 @@ package com.xixi.loadBalancer;
  */
 public interface LoadBalancerKeys {
 
-    String ROUNDROBIN = "RoundRobin";
+    String ROUNDROBIN = "roundRobin";
 
-    String RANDOM = "Random";
+    String RANDOM = "random";
 
-    String CONSISTENTHASH = "ConsistentHash";
+    String CONSISTENTHASH = "consistentHash";
 }
