@@ -28,6 +28,8 @@ public class RpcConfig {
 
     private String tolerantStrategy= TolerantStrategyKeys.FAIL_FAST;
 
+    private String servicePath= "com.xixi.impl";
+
     //Alias注解是为了在配置文件中使用别名 将registerConfig 映射到 register
     @Alias("register")
     private RegisterConfig registerConfig=new RegisterConfig();

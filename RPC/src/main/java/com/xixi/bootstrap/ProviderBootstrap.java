@@ -25,7 +25,7 @@ public class ProviderBootstrap {
         final RpcConfig rpcConfig = RpcApplication.getRpcConfig();
 
         //服务注册
-        ServiceAnnotationProcessor.process("com.xixi.impl");
+        ServiceAnnotationProcessor.process(rpcConfig.getServicePath());
 
         // 启动服务器
         VertxTcpServer vertxTcpServer = new VertxTcpServer();
