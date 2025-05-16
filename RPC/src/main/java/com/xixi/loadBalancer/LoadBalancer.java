@@ -3,6 +3,7 @@ package com.xixi.loadBalancer;
 import com.xixi.model.ServiceMetaInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 负载均衡器
@@ -15,5 +16,5 @@ public interface LoadBalancer {
      * @param services
      * @return
      */
-    ServiceMetaInfo select(List<ServiceMetaInfo> services);
+    ServiceMetaInfo select(Map<String,Object> requestParams,List<ServiceMetaInfo> services);
 }

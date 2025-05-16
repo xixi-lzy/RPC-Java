@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.rmi.registry.Registry;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -78,7 +80,9 @@ public class ServiceProxy implements InvocationHandler {
             }
             //负载均衡
             LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
-            ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(serviceMetaInfoList);
+            Map<String,Object> requestParams = new HashMap<>();
+            requestParams.put("methodName", rpcRequest.getMethodName());
+            ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams,serviceMetaInfoList);
 
             // rpc 请求
             // 使用重试机制
@@ -91,7 +95,11 @@ public class ServiceProxy implements InvocationHandler {
             } catch (Exception e) {
                 // 容错机制
                 TolerantStrategy tolerantStrategy = TolerantStrategyFactory.getInstance(rpcConfig.getTolerantStrategy());
-                rpcResponse = tolerantStrategy.doTolerant(null, e);
+                Map<String,Object> context = new HashMap<>();
+                context.put("rpcRequest", rpcRequest);
+                context.put("ServiceMetaInfo", selectedServiceMetaInfo);
+                context.put("exception", e);
+                rpcResponse = tolerantStrategy.doTolerant(context, e);
             }
             return rpcResponse.getData();
         } catch (IOException e) {

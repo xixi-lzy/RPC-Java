@@ -3,7 +3,6 @@ package com.xixi.fault.tolerant;
 import com.xixi.model.RpcResponse;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public interface TolerantStrategy {
 

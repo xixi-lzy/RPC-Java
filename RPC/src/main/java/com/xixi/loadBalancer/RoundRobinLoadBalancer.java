@@ -3,6 +3,7 @@ package com.xixi.loadBalancer;
 import com.xixi.model.ServiceMetaInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +14,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
     private final AtomicInteger index = new AtomicInteger(0);
 
     @Override
-    public ServiceMetaInfo select(List<ServiceMetaInfo> services) {
+    public ServiceMetaInfo select(Map<String,Object> requestParams,List<ServiceMetaInfo> services) {
         if(services.isEmpty()){
             return null;
         }
