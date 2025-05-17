@@ -18,10 +18,10 @@ public class ProviderBootstrap {
      * 初始化
      */
     public static void init() {
-        // RPC 框架初始化（配置和注册中心）
+        // RPC 框架初始化（配置和注册中心初始化）
         RpcApplication.init();
 
-        // 全局配置
+        // 获取全局配置
         final RpcConfig rpcConfig = RpcApplication.getRpcConfig();
 
         //服务注册

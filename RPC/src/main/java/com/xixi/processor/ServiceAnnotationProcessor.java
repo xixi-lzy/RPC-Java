@@ -30,7 +30,6 @@ public class ServiceAnnotationProcessor {
             RpcService annotation = serviceClass.getAnnotation(RpcService.class);
             Class<?> interfaceClass = annotation.interfaceClass();
             // 注册本地服务
-            String serviceName = serviceClass.getName();
             LocalRegister.register(interfaceClass.getName(), serviceClass);
 
             // 注册到注册中心

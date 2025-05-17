@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * SPI 加载器（支持键值对映射）
  */
-//@Slf4j
+@Slf4j
 public class SpiLoader {
 
     /**
@@ -54,7 +54,7 @@ public class SpiLoader {
      * 加载所有类型
      */
     public static void loadAll() {
-        //log.info("加载所有 SPI");
+        log.info("加载所有 SPI");
         for (Class<?> aClass : LOAD_CLASS_LIST) {
             load(aClass);
         }
@@ -99,7 +99,7 @@ public class SpiLoader {
      * @throws IOException
      */
     public static Map<String, Class<?>> load(Class<?> loadClass) {
-        //log.info("加载类型为 {} 的 SPI", loadClass.getName());
+        log.info("加载类型为 {} 的 SPI", loadClass.getName());
         // 扫描路径，用户自定义的 SPI 优先级高于系统 SPI
         Map<String, Class<?>> keyClassMap = new HashMap<>();
         for (String scanDir : SCAN_DIRS) {
@@ -119,7 +119,7 @@ public class SpiLoader {
                         }
                     }
                 } catch (Exception e) {
-                    //log.error("spi resource load error", e);
+                    log.error("spi resource load error", e);
                 }
             }
         }

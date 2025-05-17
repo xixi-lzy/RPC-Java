@@ -13,7 +13,6 @@ import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 import io.etcd.jetcd.watch.WatchEvent;
 
-import javax.imageio.spi.ServiceRegistry;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashSet;
