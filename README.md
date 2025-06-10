@@ -11,8 +11,9 @@
 
 - ## 快速开始
 1. 启动 Provider
+
+2. 实现服务接口
 ```java
-// 2.实现服务接口
 @RpcService(interfaceClass = UserService.class)
 public class UserServiceImpl implements UserService {
   public User getUser(User user) {
@@ -21,16 +22,16 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
+3. 调用服务
 ```java
-//3.调用服务
 UserService userService = ServiceProxyFactory.getProxy(UserService.class);
 User result = userService.getUser(new User("xixi"));
 ```
 
-环境要求
-JDK 17+
-Maven 3.6+
-Etcd 3.5+ (服务注册发现)
+环境要求  
+JDK 17+  
+Maven 3.6+  
+Etcd 3.5+ (服务注册发现)  
 
 
 配置项 application.yaml
