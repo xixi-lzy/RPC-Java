@@ -65,8 +65,8 @@ public class ServiceProxy implements InvocationHandler {
                 .args(args)
                 .build();
         try {
-            // 序列化
-            byte[] bodyBytes = serializer.serialize(rpcRequest);
+//            // 序列化
+//            byte[] bodyBytes = serializer.serialize(rpcRequest);
 
             // 从注册中心获取服务提供者请求地址
             RpcConfig rpcConfig = RpcApplication.getRpcConfig();

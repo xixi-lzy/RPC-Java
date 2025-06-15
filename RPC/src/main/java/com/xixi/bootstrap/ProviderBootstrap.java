@@ -2,12 +2,8 @@ package com.xixi.bootstrap;
 
 import com.xixi.RpcApplication;
 import com.xixi.config.RpcConfig;
-import com.xixi.model.ServiceMetaInfo;
 import com.xixi.processor.ServiceAnnotationProcessor;
 import com.xixi.server.tcp.VertxTcpServer;
-
-import java.rmi.registry.Registry;
-import java.util.List;
 
 /**
  * 服务提供者初始化

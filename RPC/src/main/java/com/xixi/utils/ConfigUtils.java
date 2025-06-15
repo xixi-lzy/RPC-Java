@@ -39,6 +39,12 @@ public class ConfigUtils {
         }
         configFileBuilder.append(".yml");
         Dict dict = YamlUtil.loadByPath(configFileBuilder.toString());
+        //如果yml配置文件不存在，使用默认配置
+        if (dict == null) {
+            configFileBuilder = new StringBuilder("application.properties");
+            Props props = new Props(configFileBuilder.toString());
+            return props.toBean(tClass, prefix);
+        }
         return BeanUtil.copyProperties(dict.getBean(prefix), tClass);
 //        Props props = new Props(configFileBuilder.toString());
 //        return props.toBean(tClass, prefix);
